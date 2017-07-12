@@ -118,15 +118,24 @@ class AppProxy(ModelSingleton, ModelSQL):
         to_write = []
 
         for id, values in elements_to_write:
-            to_write.extend(([ModuleWrite(id)], values))
-
+            values_to_write = cls._convert_data(values)
+            to_write.extend(([ModuleWrite(id)], values_to_write))
         ModuleWrite.write(*to_write)
 
     @classmethod
     def save_records(cls, module, to_create):
         ModuleSave = Pool().get(module)
+        for value in to_create:
+            value = cls._convert_data(value)
         created_ids = ModuleSave.create(to_create)
         return [element.id for element in created_ids]
+
+    @staticmethod
+    def _convert_data(data):
+        for key in data.keys():
+            if isinstance(data[key], float):
+                data[key] = Decimal(str(data[key]))
+        return data
 
     @classmethod
     def raise_except(cls):
