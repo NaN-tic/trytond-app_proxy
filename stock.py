@@ -14,12 +14,12 @@ class ShipmentIn:
     def __setup__(cls):
         super(ShipmentIn, cls).__setup__()
         cls.__rpc__.update({
-            'finish_shipment':
+            'io_finish_shipment':
                 RPC(instantiate=0, readonly=False, check_access=False),
             })
 
     @classmethod
-    def finish_shipment(cls, shipments):
+    def io_finish_shipment(cls, shipments):
         done_shipments = []
         for shipment in shipments:
             moves = [x for x in shipment.inventory_moves
@@ -27,4 +27,5 @@ class ShipmentIn:
             if not moves:
                 done_shipments.append(shipment)
 
-        cls.done([done_shipments])
+        if done_shipments:
+            cls.done(done_shipments)
