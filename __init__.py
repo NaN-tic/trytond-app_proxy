@@ -2,10 +2,10 @@
 # copyright notices and license terms.
 from trytond.pool import Pool
 from . import app
-from . import move
+from . import stock
 
 def register():
     Pool.register(
         app.AppProxy,
-        move.ShipmentIn,
+        stock.ShipmentIn,
         module='app_proxy', type_='model')
