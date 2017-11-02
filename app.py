@@ -100,8 +100,10 @@ class AppProxy(ModelSingleton, ModelSQL):
 
         ModuleSearch = Pool().get(module)
         domain = cls._construct_domain(domain)
+        ffields = [x for x in fields if (x in ModuleSearch._fields.keys()
+            or '.' in x)]
         models = ModuleSearch.search_read(domain, int(offset), limit or None,
-            order=[], fields_names=fields)
+            order=[], fields_names=ffields)
         for model in models:
             for key in model:
                 attr = model[key]
@@ -125,14 +127,19 @@ class AppProxy(ModelSingleton, ModelSQL):
     @classmethod
     def save_records(cls, module, to_create):
         ModuleSave = Pool().get(module)
+        fields = ModuleSave._fields.keys()
         for value in to_create:
-            value = cls._convert_data(value)
+            value = cls._convert_data(value, fields)
         created_ids = ModuleSave.create(to_create)
         return [element.id for element in created_ids]
 
     @staticmethod
-    def _convert_data(data):
+    def _convert_data(data, fields=[]):
         for key in data.keys():
+            if key not in fields:
+                print "deleting field:", key
+                del data[key]
+                continue
             if isinstance(data[key], float):
                 data[key] = Decimal(str(data[key]))
         return data
