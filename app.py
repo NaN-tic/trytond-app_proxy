@@ -122,6 +122,7 @@ class AppProxy(ModelSingleton, ModelSQL):
         for id, values in elements_to_write:
             values_to_write = cls._convert_data(values)
             to_write.extend(([ModuleWrite(id)], values_to_write))
+        print "to write:", to_write
         ModuleWrite.write(*to_write)
 
     @classmethod
@@ -136,8 +137,7 @@ class AppProxy(ModelSingleton, ModelSQL):
     @staticmethod
     def _convert_data(data, fields=[]):
         for key in data.keys():
-            if key not in fields:
-                print "deleting field:", key
+            if fields and key not in fields:
                 del data[key]
                 continue
             if isinstance(data[key], float):
