@@ -23,7 +23,7 @@ class ShipmentIn:
         done_shipments = []
         for shipment in shipments:
             moves = [x for x in shipment.inventory_moves
-                        if x.state not in ('done', 'cancel')]
+                if x.state not in {'done', 'cancel'}]
             if not moves:
                 done_shipments.append(shipment)
 
