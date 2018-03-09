@@ -39,11 +39,11 @@ class AppProxy(ModelSingleton, ModelSQL):
         result_data = {}
         for json_element in parser_json:
             module, = json_element.keys()
-            domain, fields, offset, limit = json_element[module]
+            domain, fields, offset, limit, order = json_element[module]
             # ID is always sent
             fields.append('id')
             result_data[module] = cls.get_data(module, domain,
-                    fields, offset, limit)
+                    fields, offset, limit, order)
         return cls.create_json(result_data)
 
     @classmethod
@@ -96,14 +96,14 @@ class AppProxy(ModelSingleton, ModelSQL):
         return cls.check_json(result_data, False)
 
     @classmethod
-    def get_data(cls, module, domain, fields, offset, limit):
+    def get_data(cls, module, domain, fields, offset, limit, order=[]):
 
         ModuleSearch = Pool().get(module)
         domain = cls._construct_domain(domain)
         ffields = [x for x in fields if (x in ModuleSearch._fields.keys()
             or '.' in x)]
         models = ModuleSearch.search_read(domain, int(offset), limit or None,
-            order=[], fields_names=ffields)
+            order, fields_names=ffields)
         for model in models:
             for key in model:
                 attr = model[key]
@@ -118,9 +118,9 @@ class AppProxy(ModelSingleton, ModelSQL):
     def write_records(cls, module, elements_to_write):
         ModuleWrite = Pool().get(module)
         to_write = []
-
+        fields = ModuleWrite._fields.keys()
         for id, values in elements_to_write:
-            values_to_write = cls._convert_data(values)
+            values_to_write = cls._convert_data(values, fields)
             to_write.extend(([ModuleWrite(id)], values_to_write))
         ModuleWrite.write(*to_write)
 
@@ -141,6 +141,7 @@ class AppProxy(ModelSingleton, ModelSQL):
                 continue
             if isinstance(data[key], float):
                 data[key] = Decimal(str(data[key]))
+
         return data
 
     @classmethod
