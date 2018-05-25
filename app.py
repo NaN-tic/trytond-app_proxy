@@ -1,7 +1,7 @@
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
 from trytond.pool import Pool
-from trytond.model import ModelSQL, ModelSingleton
+from trytond.model import ModelSingleton
 from trytond.rpc import RPC
 from decimal import Decimal
 import datetime
@@ -10,7 +10,7 @@ import json
 __all__ = ['AppProxy']
 
 
-class AppProxy(ModelSingleton, ModelSQL):
+class AppProxy(ModelSingleton):
     "This class acts as a proxy between the web applications and Tryton"
     __name__ = 'app.proxy'
 
@@ -37,12 +37,12 @@ class AppProxy(ModelSingleton, ModelSQL):
         parser_json = cls.check_json(JSON)
         result_data = {}
         for json_element in parser_json:
-            module, = json_element.keys()
-            domain, fields, offset, limit, order = json_element[module]
+            model, = json_element.keys()
+            domain, fields, offset, limit, order = json_element[model]
             # ID is always sent
             fields.append('id')
-            result_data[module] = cls.get_data(module, domain,
-                    fields, offset, limit, order)
+            result_data[model] = cls.get_data(model, domain, fields,
+                                    offset, limit, order)
         return cls.create_json(result_data)
 
     @classmethod
@@ -55,20 +55,20 @@ class AppProxy(ModelSingleton, ModelSQL):
         """
         parser_json = cls.check_json(JSON)
         created_ids = {}
-        modules = parser_json.keys()
+        models = parser_json.keys()
 
-        for module in modules:
+        for model in models:
             to_write = []
             to_create = []
-            for id, values in parser_json[module]:
+            for id, values in parser_json[model]:
                 if id and int(id) >= 0:
                     to_write.append((id, values))
                 else:
                     to_create.append(values)
             if to_write:
-                cls.write_records(module, to_write)
+                cls.write_records(model, to_write)
             if to_create:
-                created_ids[module] = cls.save_records(module, to_create)
+                created_ids[model] = cls.save_records(model, to_create)
 
         if created_ids:
             return cls.create_json(created_ids)
@@ -95,13 +95,16 @@ class AppProxy(ModelSingleton, ModelSQL):
         return cls.check_json(result_data, False)
 
     @classmethod
-    def get_data(cls, module, domain, fields, offset, limit, order=[]):
+    def get_data(cls, model, domain, fields, offset, limit, order=[]):
+        Model = Pool().get(model)
 
-        ModuleSearch = Pool().get(module)
         domain = cls._construct_domain(domain)
-        ffields = [x for x in fields if (x in ModuleSearch._fields.keys()
+        ffields = [x for x in fields if (x in Model._fields.keys()
             or '.' in x)]
-        models = ModuleSearch.search_read(domain, int(offset), limit or None,
+
+        if not order:
+            order = Model._order
+        models = Model.search_read(domain, int(offset), limit or None,
             order, fields_names=ffields)
         for model in models:
             for key in model:
@@ -114,23 +117,24 @@ class AppProxy(ModelSingleton, ModelSQL):
         return models
 
     @classmethod
-    def write_records(cls, module, elements_to_write):
-        ModuleWrite = Pool().get(module)
-        to_write = []
+    def write_records(cls, model, elements_to_write):
+        Model = Pool().get(model)
 
-        fields = ModuleWrite._fields.keys()
+        to_write = []
+        fields = Model._fields.keys()
         for id, values in elements_to_write:
             values_to_write = cls._convert_data(values, fields)
-            to_write.extend(([ModuleWrite(id)], values_to_write))
-        ModuleWrite.write(*to_write)
+            to_write.extend(([Model(id)], values_to_write))
+        Model.write(*to_write)
 
     @classmethod
-    def save_records(cls, module, to_create):
-        ModuleSave = Pool().get(module)
-        fields = ModuleSave._fields.keys()
+    def save_records(cls, model, to_create):
+        Model = Pool().get(model)
+
+        fields = Model._fields.keys()
         for value in to_create:
             value = cls._convert_data(value, fields)
-        created_ids = ModuleSave.create(to_create)
+        created_ids = Model.create(to_create)
         return [element.id for element in created_ids]
 
     @staticmethod
