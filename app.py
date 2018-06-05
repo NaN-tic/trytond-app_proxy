@@ -3,6 +3,7 @@
 from trytond.pool import Pool
 from trytond.model import ModelSingleton
 from trytond.rpc import RPC
+from trytond.protocols.jsonrpc import JSONDecoder, JSONEncoder
 from decimal import Decimal
 import datetime
 import json
@@ -29,31 +30,37 @@ class AppProxy(ModelSingleton):
             })
 
     @classmethod
-    def app_search(cls, JSON):
+    def dump_values(cls, value):
+        return json.dumps(value, cls=JSONEncoder, separators=(',', ':'), sort_keys=True)
+
+    @classmethod
+    def app_search(cls, values):
         """
         This method will search the requested data from the JSON and
         return it to the application
         """
-        parser_json = cls.check_json(JSON)
+        parser_json = json.loads(values)
         result_data = {}
+        result_data['total_count'] = {}
         for json_element in parser_json:
             model, = json_element.keys()
-            domain, fields, offset, limit, order = json_element[model]
-            # ID is always sent
-            fields.append('id')
+            domain, fields, offset, limit, order, count = json_element[model]
+            fields += ['id', 'create_date', 'write_date']
             result_data[model] = cls.get_data(model, domain, fields,
-                                    offset, limit, order)
-        return cls.create_json(result_data)
+                    offset, limit, order)
+            result_data['total_count'][model] = (cls.get_count(model, domain)
+                    if count else '')
+        return cls.dump_values(result_data)
 
     @classmethod
-    def app_write(cls, JSON):
+    def app_write(cls, values):
         """
         This method will save or write records into tryton. The JSON
         is composed of the target model, the id and the values to update/save
         In the case of the ID, an id > 0 means write and id < 0 means save.
         The created ids will be returned to the application
         """
-        parser_json = cls.check_json(JSON)
+        parser_json = json.loads(values, object_hook=JSONDecoder())
         created_ids = {}
         models = parser_json.keys()
 
@@ -71,50 +78,59 @@ class AppProxy(ModelSingleton):
                 created_ids[model] = cls.save_records(model, to_create)
 
         if created_ids:
-            return cls.create_json(created_ids)
+            return json.dumps(created_ids)
         return 'AK'
 
     @classmethod
-    def check_json(cls, JSON, load=True):
-        """ Checks the format of the JSON """
-        try:
-            if load:
-                return json.loads(JSON)
-            else:
-                return json.dumps(JSON)
-        except ValueError:
-            cls.raise_except()
-
-    @classmethod
-    def create_json(cls, result_data):
-        """
-        This method will create the JSON using the result_data as template
-        """
-        if not result_data:
-            cls.raise_user_error('no_result')
-        return cls.check_json(result_data, False)
-
-    @classmethod
-    def get_data(cls, model, domain, fields, offset, limit, order=[]):
-        Model = Pool().get(model)
-
-        domain = cls._construct_domain(domain)
-        ffields = [x for x in fields if (x in Model._fields.keys()
-            or '.' in x)]
+    def get_data(cls, model, domain, fields, offset, limit=None, order=[]):
+        pool = Pool()
+        Model = pool.get(model)
 
         if not order:
             order = Model._order
-        models = Model.search_read(domain, int(offset), limit or None,
-            order, fields_names=ffields)
-        for model in models:
-            for key in model:
-                attr = model[key]
-                if (isinstance(attr, datetime.date) or
-                        isinstance(attr, datetime.datetime)):
-                    model[key] = attr.isoformat()
-                elif isinstance(attr, Decimal):
-                    model[key] = float(attr)
-        return models
+        domain = cls._construct_domain(domain)
+        records = Model.search(domain, int(offset), limit or None, order)
+
+        def convert_field(record, fields, parent=None):
+            drecord = {}
+            for field in fields:
+                name = '%s.%s' % (parent, field) if parent else field
+
+                if ':' in field:
+                    ffield, _subfields = field.split(':')
+                    subfields = json.loads(_subfields)
+                    model_field = Model._fields.get(ffield)
+                    if (model_field._type == 'one2many'
+                            or model_field._type == 'many2many'):
+                        subrecords = []
+                        for subrecord in getattr(record, ffield):
+                            subfields += ['id', 'create_date', 'write_date']
+                            dsubrecord = convert_field(subrecord, subfields)
+                            subrecords.append(dsubrecord)
+                        drecord[ffield] = subrecords
+                    elif model_field._type == 'many2one':
+                        dsubrecord = convert_field(getattr(record, ffield), subfields, ffield)
+                        drecord.update(dsubrecord)
+                elif '.' in field:
+                    ffield, subfield = field.split('.')
+                    subrecord = getattr(record, ffield)
+                    value = getattr(subrecord, subfield) if subrecord else None
+                    drecord[name] = value
+                else:
+                    drecord[name] = getattr(record, field) if record else None
+            return drecord
+
+        app_records = []
+        for record in records:
+            app_records.append(convert_field(record, fields))
+        return app_records
+
+    @classmethod
+    def get_count(cls, model, domain):
+        pool = Pool()
+        Model = pool.get(model)
+
+        return Model.search_count(domain)
 
     @classmethod
     def write_records(cls, model, elements_to_write):
