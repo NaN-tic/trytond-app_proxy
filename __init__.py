@@ -7,5 +7,8 @@ from . import stock
 def register():
     Pool.register(
         app.AppProxy,
+        module='app_proxy', type_='model')
+    Pool.register(
         stock.ShipmentIn,
+        depends=['stock'],
         module='app_proxy', type_='model')
