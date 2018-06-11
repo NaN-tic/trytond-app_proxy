@@ -115,7 +115,7 @@ class AppProxy(ModelSingleton):
                     ffield, subfield = field.split('.')
                     subrecord = getattr(record, ffield)
                     value = getattr(subrecord, subfield) if subrecord else None
-                    drecord[name] = value
+                    drecord[name] = value.id if hasattr(value, 'id') else value
                 else:
                     drecord[name] = getattr(record, field) if record else None
             return drecord
