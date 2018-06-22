@@ -109,6 +109,7 @@ class AppProxy(ModelSingleton):
                             subrecords.append(dsubrecord)
                         drecord[ffield] = subrecords
                     elif model_field._type == 'many2one':
+                        subfields += ['id', 'create_date', 'write_date']
                         dsubrecord = convert_field(getattr(record, ffield), subfields, ffield)
                         drecord.update(dsubrecord)
                 elif '.' in field:
