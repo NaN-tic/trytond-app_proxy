@@ -67,10 +67,10 @@ class AppProxyTestCase(ModuleTestCase):
         offset = 0
         limit = ''
         order = []
-
+        count = True
         # Test party.party
         json_constructor = []
-        json_constructor.append({model: [domain, fields, offset, limit, order]})
+        json_constructor.append({model: [domain, fields, offset, limit, order, count]})
         result = json.loads(AppProxy.app_search(json.dumps(json_constructor)))
         self.assertEqual(result['party.party'][0]['code'], '1')
         self.assertEqual(result['party.party'][0]['create_date']['__class__'], 'datetime')
@@ -79,13 +79,14 @@ class AppProxyTestCase(ModuleTestCase):
 
         # Test party.party + party.address
         json_constructor = []
-        json_constructor.append({model: [domain, fields, offset, limit, order]})
+        json_constructor.append({model: [domain, fields, offset, limit, order, count]})
         model = 'party.address'
         domain = [['party', '=', 1]]
         fields = ['name', 'country.name', 'city', 'create_date']
-        json_constructor.append({model: [domain, fields, offset, limit, order]})
+        count = False
+        json_constructor.append({model: [domain, fields, offset, limit, order, count]})
         result = json.loads(AppProxy.app_search(json.dumps(json_constructor)))
-        self.assertEqual(len(result.keys()), 2)
+        self.assertEqual(len(result.keys()), 3)
 
         # Test APP Proxy Write
         json_constructor = {}
