@@ -1,6 +1,7 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from trytond.pool import Pool, PoolMeta
+from trytond.model import fields
 from trytond.rpc import RPC
 
 __all__ = ['Category', 'Product']
@@ -18,12 +19,14 @@ class Category:
             })
 
     @classmethod
-    def app_category_domain(cls):
-        return [('parent', '=', None), ('accounting', '=', False)]
+    def app_category_domain(cls, app):
+        return []
 
     @classmethod
-    def app_categories(cls, category=[]):
+    def app_categories(cls, app_id, category=[]):
         AppProxy = Pool().get('app.proxy')
+
+        app = AppProxy(app_id)
 
         def vals(category, childs=[]):
             return {
@@ -34,7 +37,7 @@ class Category:
                 }
 
         categories = []
-        for category in cls.search(cls.app_category_domain()):
+        for category in cls.search(cls.app_category_domain(app)):
             # second level
             second_childs = []
             for cat2 in category.childs:

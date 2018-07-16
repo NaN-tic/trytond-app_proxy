@@ -1,7 +1,7 @@
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
 from trytond.pool import Pool
-from trytond.model import ModelSingleton
+from trytond.model import (ModelView, ModelSQL, DeactivableMixin, fields)
 from trytond.rpc import RPC
 from trytond.protocols.jsonrpc import JSONDecoder, JSONEncoder
 from decimal import Decimal
@@ -11,9 +11,10 @@ import json
 __all__ = ['AppProxy']
 
 
-class AppProxy(ModelSingleton):
-    "This class acts as a proxy between the web applications and Tryton"
+class AppProxy(DeactivableMixin, ModelSQL, ModelView):
+    "App Proxy between the web applications and Tryton"
     __name__ = 'app.proxy'
+    name = fields.Char('Name', required=True)
 
     @classmethod
     def __setup__(cls):
@@ -21,8 +22,8 @@ class AppProxy(ModelSingleton):
         cls._error_messages.update({
             'incorrect_json': ('The received JSON is incorrect'),
             'no_result': ('Unable to fetch required data'),
-            'incorrect_send_json': ('An error occurred while creating \
-                the json: %s')
+            'incorrect_send_json': ('An error occurred while creating '
+                'the JSON: %s')
             })
         cls.__rpc__.update({
             'app_search': RPC(readonly=False),
