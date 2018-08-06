@@ -1,7 +1,7 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from trytond.pool import Pool, PoolMeta
-from trytond.model import fields
+from trytond.transaction import Transaction
 from trytond.rpc import RPC
 
 __all__ = ['Category', 'Product']
@@ -62,6 +62,10 @@ class Product:
             })
 
     @classmethod
-    def app_quantity(cls, product_ids, name='quantity'):
-        products = cls.browse(product_ids)
-        return super(Product, cls).get_quantity(products, name)
+    def app_quantity(cls, product_ids=[], name='quantity'):
+        if not product_ids:
+            products = cls.search([])
+        else:
+            products = cls.browse(product_ids)
+        with Transaction().set_user(0, set_context=False):
+            return super(Product, cls).get_quantity(products, name)
