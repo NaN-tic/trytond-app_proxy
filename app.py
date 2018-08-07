@@ -46,7 +46,7 @@ class AppProxy(DeactivableMixin, ModelSQL, ModelView):
         for json_element in parser_json:
             model, = json_element.keys()
             domain, fields, offset, limit, order, count = json_element[model]
-            fields += ['id', 'create_date', 'write_date']
+            fields += ['id']
             result_data[model] = cls.get_data(model, domain, fields,
                     offset, limit, order)
             result_data['total_count'][model] = (cls.get_count(model, domain)
@@ -105,12 +105,12 @@ class AppProxy(DeactivableMixin, ModelSQL, ModelView):
                             or model_field._type == 'many2many'):
                         subrecords = []
                         for subrecord in getattr(record, ffield):
-                            subfields += ['id', 'create_date', 'write_date']
+                            subfields += ['id']
                             dsubrecord = convert_field(subrecord, subfields)
                             subrecords.append(dsubrecord)
                         drecord[ffield] = subrecords
                     elif model_field._type == 'many2one':
-                        subfields += ['id', 'create_date', 'write_date']
+                        subfields += ['id']
                         dsubrecord = convert_field(getattr(record, ffield), subfields, ffield)
                         drecord.update(dsubrecord)
                 elif '.' in field:
