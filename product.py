@@ -64,7 +64,7 @@ class Product:
     @classmethod
     def app_quantity(cls, product_ids=[], name='quantity'):
         if not product_ids:
-            products = cls.search([])
+            products = cls.search([('type', '=', 'goods')])
         else:
             products = cls.browse(product_ids)
         with Transaction().set_user(0, set_context=False):
