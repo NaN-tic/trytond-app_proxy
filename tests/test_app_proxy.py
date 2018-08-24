@@ -86,7 +86,7 @@ class AppProxyTestCase(ModuleTestCase):
         count = False
         json_constructor.append({model: [domain, fields, offset, limit, order, count]})
         result = json.loads(AppProxy.app_search(json.dumps(json_constructor)))
-        self.assertEqual(len(result.keys()), 3)
+        self.assertEqual(len(result), 3)
 
         # Test APP Proxy Write
         json_constructor = {}
@@ -113,8 +113,8 @@ class AppProxyTestCase(ModuleTestCase):
         model = 'ir.cron'
         to_save = []
         to_save.append([1, {"next_call": {
-            '__class__': 'datetime', 'hour': 00, 'month': 1, 'second': 00,
-            'microsecond': 0, 'year': 1977, 'day': 01, 'minute': 00}
+            '__class__': 'datetime', 'hour': 0, 'month': 1, 'second': 0,
+            'microsecond': 0, 'year': 1977, 'day': 1, 'minute': 0}
             }])
         json_constructor[model] = to_save
         result = AppProxy.app_write(json.dumps(json_constructor))

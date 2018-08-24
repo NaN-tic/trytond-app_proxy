@@ -6,9 +6,8 @@ from trytond.rpc import RPC
 __all__ = ['ShipmentIn']
 
 
-class ShipmentIn:
+class ShipmentIn(metaclass=PoolMeta):
     __name__ = 'stock.shipment.in'
-    __metaclass__ = PoolMeta
 
     @classmethod
     def __setup__(cls):

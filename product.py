@@ -7,8 +7,7 @@ from trytond.rpc import RPC
 __all__ = ['Category', 'Product']
 
 
-class Category:
-    __metaclass__ = PoolMeta
+class Category(metaclass=PoolMeta):
     __name__ = "product.category"
 
     @classmethod
@@ -50,8 +49,7 @@ class Category:
         return AppProxy.dump_values(categories)
 
 
-class Product:
-    __metaclass__ = PoolMeta
+class Product(metaclass=PoolMeta):
     __name__ = "product.product"
 
     @classmethod
