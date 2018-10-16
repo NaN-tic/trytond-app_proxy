@@ -1,0 +1,75 @@
+#
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "error:app.proxy:"
+msgid "An error occurred while creating the JSON: %s"
+msgstr "Ha esdevingut un error generant el JSON: %s"
+
+msgctxt "error:app.proxy:"
+msgid "The received JSON is incorrect"
+msgstr "El JSON rebut no és correcte"
+
+msgctxt "error:app.proxy:"
+msgid "Unable to fetch required data"
+msgstr "No es poden obtenir les dades requerides"
+
+msgctxt "field:app.proxy,active:"
+msgid "Active"
+msgstr "Actiu"
+
+msgctxt "field:app.proxy,create_date:"
+msgid "Create Date"
+msgstr "Data de creació"
+
+msgctxt "field:app.proxy,create_uid:"
+msgid "Create User"
+msgstr "Usuari de creació"
+
+msgctxt "field:app.proxy,id:"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "field:app.proxy,name:"
+msgid "Name"
+msgstr "Nom"
+
+msgctxt "field:app.proxy,rec_name:"
+msgid "Record Name"
+msgstr "Nom del registre"
+
+msgctxt "field:app.proxy,write_date:"
+msgid "Write Date"
+msgstr "Data de modificació"
+
+msgctxt "field:app.proxy,write_uid:"
+msgid "Write User"
+msgstr "Usuari de modificació"
+
+msgctxt "help:app.proxy,active:"
+msgid "Uncheck to exclude from future use."
+msgstr "Desmarca per eliminar l'ús del registre en el futur."
+
+msgctxt "model:app.proxy,name:"
+msgid "App Proxy between the web applications and Tryton"
+msgstr "App Proxy per aplicacions web i Tryton"
+
+msgctxt "model:ir.action,name:act_app_proxy_form"
+msgid "App Proxy"
+msgstr "App Proxy"
+
+msgctxt "model:ir.ui.menu,name:menu_app_proxy"
+msgid "App Proxy"
+msgstr "App Proxy"
+
+msgctxt "model:ir.ui.menu,name:menu_app_proxy_form"
+msgid "App Proxy"
+msgstr "App Proxy"
+
+msgctxt "model:res.group,name:group_app_proxy_admin"
+msgid "App Proxy Administrator"
+msgstr "Administrador App Proxy"
+
+msgctxt "view:app.proxy:"
+msgid "Configuration"
+msgstr "Configuració"
