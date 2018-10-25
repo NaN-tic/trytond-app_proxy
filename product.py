@@ -67,5 +67,4 @@ class Product:
             products = cls.search([('type', '=', 'goods')])
         else:
             products = cls.browse(product_ids)
-        with Transaction().set_user(0, set_context=False):
-            return super(Product, cls).get_quantity(products, name)
+        return super(Product, cls).get_quantity(products, name)
