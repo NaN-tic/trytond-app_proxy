@@ -7,6 +7,8 @@ from trytond.protocols.jsonrpc import JSONDecoder, JSONEncoder
 from decimal import Decimal
 import datetime
 import json
+from trytond.i18n import gettext
+from trytond.exceptions import UserError
 
 __all__ = ['AppProxy']
 
@@ -19,12 +21,6 @@ class AppProxy(DeactivableMixin, ModelSQL, ModelView):
     @classmethod
     def __setup__(cls):
         super(AppProxy, cls).__setup__()
-        cls._error_messages.update({
-            'incorrect_json': ('The received JSON is incorrect'),
-            'no_result': ('Unable to fetch required data'),
-            'incorrect_send_json': ('An error occurred while creating '
-                'the JSON: %s')
-            })
         cls.__rpc__.update({
             'app_search': RPC(readonly=False),
             'app_write': RPC(readonly=False),
@@ -167,7 +163,7 @@ class AppProxy(DeactivableMixin, ModelSQL, ModelView):
 
     @classmethod
     def raise_except(cls):
-        cls.raise_user_error('incorrect_json')
+        raise UserError(gettext('app_proxy.incorrect_json'))
 
     @staticmethod
     def _construct_domain(domain):
