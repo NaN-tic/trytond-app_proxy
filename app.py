@@ -119,7 +119,11 @@ class AppProxy(DeactivableMixin, ModelSQL, ModelView):
                     value = getattr(subrecord, subfield) if subrecord else None
                     drecord[name] = value.id if hasattr(value, 'id') else value
                 else:
-                    model_field = Model._fields.get(field)
+                    if record.__name__ != Model.__name__:
+                        model_field = record._fields.get(field)
+                    else:
+                        model_field = Model._fields.get(field)
+                    assert model_field, ('"%s" does not exist in model "%s"' % (field, record.__name__))
                     value = getattr(record, field) if record else None
                     if value and model_field._type == 'many2one':
                         value = value.id
