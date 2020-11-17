@@ -161,13 +161,14 @@ class AppProxy(DeactivableMixin, ModelSQL, ModelView):
 
     @staticmethod
     def _convert_data(data, fields=[]):
+        new_data = data.copy()
         for key in data.keys():
             if fields and key not in fields:
-                del data[key]
+                del new_data[key]
                 continue
-            if isinstance(data[key], float):
-                data[key] = Decimal(str(data[key]))
-        return data
+            if isinstance(new_data[key], float):
+                new_data[key] = Decimal(str(new_data[key]))
+        return new_data
 
     @classmethod
     def raise_except(cls):
