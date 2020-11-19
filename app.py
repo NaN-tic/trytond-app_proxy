@@ -107,7 +107,10 @@ class AppProxy(DeactivableMixin, ModelSQL, ModelView):
                         drecord[ffield] = subrecords
                     elif model_field._type == 'many2one':
                         subfields += ['id']
-                        dsubrecord = convert_field(getattr(record, ffield), subfields, ffield)
+                        value = getattr(record, ffield)
+                        if not value:
+                            continue
+                        dsubrecord = convert_field(value, subfields, ffield)
                         drecord.update(dsubrecord)
                 elif '.' in field:
                     ffield, subfield = field.split('.')
