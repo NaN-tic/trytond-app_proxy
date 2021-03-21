@@ -1,10 +1,7 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from trytond.pool import Pool, PoolMeta
-from trytond.transaction import Transaction
 from trytond.rpc import RPC
-
-__all__ = ['Category', 'Product']
 
 
 class Category(metaclass=PoolMeta):
