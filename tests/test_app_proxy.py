@@ -62,7 +62,7 @@ class AppProxyTestCase(ModuleTestCase):
         model = 'party.party'
         domain = [['id', '=', 1]]
         fields = ['code', 'name', 'tax_identifier.code', 'create_date',
-          'addresses:["sequence", "name", "street", "zip", "city", "country.name", "subdivision.name"]',
+          'addresses:["sequence", "name", "street", "postal_code", "city", "country.name", "subdivision.name"]',
           'contact_mechanisms:["type", "value"]']
         offset = 0
         limit = ''
