@@ -1,6 +1,7 @@
+
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
-import unittest
+
 import json
 import trytond.tests.test_tryton
 from trytond.tests.test_tryton import ModuleTestCase, with_transaction
@@ -8,7 +9,7 @@ from trytond.pool import Pool
 
 
 class AppProxyTestCase(ModuleTestCase):
-    'Test App Proxy module'
+    'Test AppProxy module'
     module = 'app_proxy'
 
     def setUp(self):
@@ -120,8 +121,5 @@ class AppProxyTestCase(ModuleTestCase):
         result = AppProxy.app_write(json.dumps(json_constructor))
         self.assertEqual(Cron(1).next_call.year, 1977)
 
-def suite():
-    suite = trytond.tests.test_tryton.suite()
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(
-        AppProxyTestCase))
-    return suite
+
+del ModuleTestCase
