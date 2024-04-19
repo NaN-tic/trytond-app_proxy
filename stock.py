@@ -3,8 +3,6 @@
 from trytond.pool import PoolMeta
 from trytond.rpc import RPC
 
-__all__ = ['ShipmentIn']
-
 
 class ShipmentIn(metaclass=PoolMeta):
     __name__ = 'stock.shipment.in'
@@ -27,4 +25,4 @@ class ShipmentIn(metaclass=PoolMeta):
                 done_shipments.append(shipment)
 
         if done_shipments:
-            cls.done(done_shipments)
+            cls.do(done_shipments)
