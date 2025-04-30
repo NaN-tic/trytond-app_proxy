@@ -63,7 +63,7 @@ class AppProxyTestCase(ModuleTestCase):
         model = 'party.party'
         domain = [['id', '=', 1]]
         fields = ['code', 'name', 'tax_identifier.code', 'create_date',
-          'addresses:["sequence", "name", "street", "postal_code", "city", "country.name", "subdivision.name"]',
+          'addresses:["sequence", "building_name", "street", "postal_code", "city", "country.name", "subdivision.name"]',
           'contact_mechanisms:["type", "value"]']
         offset = 0
         limit = ''
@@ -83,7 +83,7 @@ class AppProxyTestCase(ModuleTestCase):
         json_constructor.append({model: [domain, fields, offset, limit, order, count]})
         model = 'party.address'
         domain = [['party', '=', 1]]
-        fields = ['name', 'country.name', 'city', 'create_date']
+        fields = ['building_name', 'country.name', 'city', 'create_date']
         count = False
         json_constructor.append({model: [domain, fields, offset, limit, order, count]})
         result = json.loads(AppProxy.app_search(json.dumps(json_constructor)))
