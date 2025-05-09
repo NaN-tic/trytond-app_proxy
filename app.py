@@ -10,8 +10,6 @@ import json
 from trytond.i18n import gettext
 from trytond.exceptions import UserError
 
-__all__ = ['AppProxy']
-
 
 class AppProxy(DeactivableMixin, ModelSQL, ModelView):
     "App Proxy between the web applications and Tryton"

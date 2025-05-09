@@ -100,8 +100,8 @@ class AppProxyTestCase(ModuleTestCase):
 
         model = 'party.address'
         to_save = []
-        to_save.append([1, {"name":"Address Proxy", "subdivision": 2}])
-        to_save.append([-1, {"name":"Address Proxy1", "party": 2}])
+        to_save.append([1, {"building_name":"Address Proxy", "subdivision": 2}])
+        to_save.append([-1, {"building_name":"Address Proxy1", "party": 2}])
         json_constructor[model] = to_save
 
         result = json.loads(AppProxy.app_write(json.dumps(json_constructor)))
