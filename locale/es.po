@@ -2,18 +2,6 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
-msgctxt "error:app.proxy:"
-msgid "An error occurred while creating the JSON: %s"
-msgstr "Ha ocurrido un error generando el JSON: %s"
-
-msgctxt "error:app.proxy:"
-msgid "The received JSON is incorrect"
-msgstr "El JSON recibido es incorrecto"
-
-msgctxt "error:app.proxy:"
-msgid "Unable to fetch required data"
-msgstr "No se pueden obtener los datos requeridos"
-
 msgctxt "field:app.proxy,active:"
 msgid "Active"
 msgstr "Activo"
