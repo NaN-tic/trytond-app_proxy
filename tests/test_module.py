@@ -61,7 +61,7 @@ class AppProxyTestCase(ModuleTestCase):
 
         # Test APP Proxy Search
         model = 'party.party'
-        domain = [['id', '=', 1]]
+        domain = [['code', '=', '1']]
         fields = ['code', 'name', 'tax_identifier.code', 'create_date',
           'addresses:["sequence", "building_name", "street", "postal_code", "city", "country.name", "subdivision.name"]',
           'contact_mechanisms:["type", "value"]']
@@ -82,44 +82,48 @@ class AppProxyTestCase(ModuleTestCase):
         json_constructor = []
         json_constructor.append({model: [domain, fields, offset, limit, order, count]})
         model = 'party.address'
-        domain = [['party', '=', 1]]
+        domain = [['party.code', '=', '1']]
         fields = ['building_name', 'country.name', 'city', 'create_date']
         count = False
         json_constructor.append({model: [domain, fields, offset, limit, order, count]})
         result = json.loads(AppProxy.app_search(json.dumps(json_constructor)))
         self.assertEqual(len(result), 3)
 
+        party, = Party.search([], limit=1)
+
         # Test APP Proxy Write
         json_constructor = {}
         model = 'party.party'
         to_save = []
-        to_save.append([1, {"name":"Party Proxy"}])
+        to_save.append([party.id, {"name":"Party Proxy"}])
         to_save.append([-1, {"name":"Party Proxy1"}])
         to_save.append([-1, {"name":"Party Proxy2"}])
         json_constructor[model] = to_save
 
         model = 'party.address'
         to_save = []
-        to_save.append([1, {"building_name":"Address Proxy", "subdivision": 2}])
-        to_save.append([-1, {"building_name":"Address Proxy1", "party": 2}])
+        address, = Address.search([('party', '=', party)], limit=1)
+        subdivision, = Subdivision.search([], limit=1)
+        to_save.append([address.id, {"building_name":"Address Proxy", "subdivision": subdivision.id}])
+        to_save.append([-1, {"building_name":"Address Proxy1", "party": party.id}])
         json_constructor[model] = to_save
-
         result = json.loads(AppProxy.app_write(json.dumps(json_constructor)))
         self.assertEqual(len(result['party.party']), 2)
-        self.assertEqual(Party(1).name, 'Party Proxy')
+        self.assertEqual(party.name, 'Party Proxy')
         self.assertEqual(len(result['party.address']), 1)
-        self.assertEqual(Address(1).subdivision.name, 'Subdivision 2')
+        self.assertEqual(address.subdivision, subdivision)
 
         json_constructor = {}
         model = 'ir.cron'
+        cron, = Cron.search([], limit=1)
         to_save = []
-        to_save.append([1, {"next_call": {
+        to_save.append([cron.id, {"next_call": {
             '__class__': 'datetime', 'hour': 0, 'month': 1, 'second': 0,
             'microsecond': 0, 'year': 1977, 'day': 1, 'minute': 0}
             }])
         json_constructor[model] = to_save
         result = AppProxy.app_write(json.dumps(json_constructor))
-        self.assertEqual(Cron(1).next_call.year, 1977)
+        self.assertEqual(cron.next_call.year, 1977)
 
 
 del ModuleTestCase
